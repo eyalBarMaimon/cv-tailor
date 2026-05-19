@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useCV } from '../hooks/useCV';
 import { useClaude } from '../hooks/useClaude';
 import { useJobHistory } from '../hooks/useJobHistory';
-import { buildPrompt, OUTPUT_TYPES } from '../utils/prompts';
-import { EMAIL_INTRO_SEPARATOR } from '../utils/prompts';
+import { buildPrompt, OUTPUT_TYPES, EMAIL_INTRO_SEPARATOR } from '../utils/prompts';
 import { cvToText } from '../utils/cvData';
 import ResultsView from './ResultsView';
 
