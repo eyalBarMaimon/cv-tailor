@@ -15,7 +15,7 @@ export function buildPrompt(jobDescription, outputType, language, cvText, includ
       : 'Write the output in English.';
 
   const outputInstructions = {
-    full_cv: `Rewrite the full CV, tailored to this job description. Keep all sections but emphasize relevant experience. Use the same structure as the original CV. Keep the name and contact info unchanged. Use "Engineering Manager" as the primary title at Tingo Medical. Do NOT include any home address. Spanish is Basic level only.`,
+    full_cv: `Rewrite the full CV, tailored to this job description. Keep all sections but emphasize relevant experience. Keep the name and contact info unchanged. Use "Engineering Manager" as the primary title at Tingo Medical. Do NOT include any home address. Spanish is Basic level only. Use these EXACT section headers (uppercase, each on its own line, no markdown, no asterisks): PROFESSIONAL PROFILE, CORE COMPETENCIES, EXPERIENCE, EDUCATION & MILITARY, TOOLS, LANGUAGES.`,
     profile_only: `Write only a tailored Professional Profile paragraph (4–6 sentences) optimized for this job description.`,
     bullets_only: `Write tailored bullet points for the most relevant experience sections only. Use concise action-oriented language.`,
     cover_letter: `Write a professional cover letter (3–4 paragraphs) tailored to this job description. Address it to the hiring team. Sign off as Eyal Barmaimon.`,

@@ -52,13 +52,23 @@ export function generateCVPdf(cvText, candidateName = 'Eyal Barmaimon') {
 
   const SECTION_HEADERS = [
     'PROFESSIONAL PROFILE',
+    'PROFESSIONAL SUMMARY',
+    'SUMMARY',
     'CORE COMPETENCIES',
+    'KEY COMPETENCIES',
+    'COMPETENCIES',
     'EXPERIENCE',
+    'WORK EXPERIENCE',
+    'PROFESSIONAL EXPERIENCE',
     'EDUCATION & MILITARY',
     'EDUCATION',
     'TOOLS',
+    'TOOLS & SOFTWARE',
     'LANGUAGES',
   ];
+
+  const normalizeHeader = (line) =>
+    line.trim().replace(/^\*+|\*+$/g, '').replace(/^#+\s*/, '').trim().toUpperCase();
 
   let currentSection = null;
   let buffer = [];
@@ -124,11 +134,11 @@ export function generateCVPdf(cvText, candidateName = 'Eyal Barmaimon') {
 
   for (let i = 0; i < rawLines.length; i++) {
     const line = rawLines[i];
-    const isHeader = SECTION_HEADERS.includes(line.trim());
+    const isHeader = SECTION_HEADERS.includes(normalizeHeader(line));
 
     if (isHeader) {
       flushSection(currentSection, buffer);
-      currentSection = line.trim();
+      currentSection = normalizeHeader(line);
       buffer = [];
     } else if (
       i > 0 &&
@@ -141,6 +151,34 @@ export function generateCVPdf(cvText, candidateName = 'Eyal Barmaimon') {
     }
   }
   flushSection(currentSection, buffer);
+
+  // Fallback: if nothing was rendered (no sections matched), dump text as-is
+  if (currentSection === null) {
+    doc.setFontSize(9);
+    doc.setTextColor(...GRAY);
+    doc.setFont('helvetica', 'normal');
+    rawLines.forEach((line) => {
+      if (y > 270) { doc.addPage(); y = margin; }
+      const trimmed = line.trim();
+      if (!trimmed) { y += 2; return; }
+      const norm = normalizeHeader(line);
+      if (SECTION_HEADERS.includes(norm)) {
+        y += 2;
+        doc.setFontSize(10);
+        doc.setTextColor(...BLUE);
+        doc.setFont('helvetica', 'bold');
+        doc.text(norm, margin, y);
+        y += 5;
+        doc.setFontSize(9);
+        doc.setTextColor(...GRAY);
+        doc.setFont('helvetica', 'normal');
+      } else if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+        y = addWrappedText(doc, '• ' + trimmed.slice(2), margin + 4, y, contentW - 4, 4.5);
+      } else {
+        y = addWrappedText(doc, trimmed, margin, y, contentW, 4.5);
+      }
+    });
+  }
 
   // Footer
   doc.setFontSize(7);
