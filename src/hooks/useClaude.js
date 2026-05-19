@@ -34,7 +34,7 @@ export function useClaude() {
         },
         body: JSON.stringify({
           model: GROQ_MODEL,
-          max_tokens: 2000,
+          max_tokens: 3000,
           temperature: 0.4,
           messages: [{ role: 'user', content: prompt }],
         }),

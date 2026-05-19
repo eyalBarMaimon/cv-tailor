@@ -6,7 +6,9 @@ export const OUTPUT_TYPES = [
   { value: 'email_paragraph', label: 'Short email paragraph' },
 ];
 
-export function buildPrompt(jobDescription, outputType, language, cvText) {
+export const EMAIL_INTRO_SEPARATOR = '---EMAIL_INTRO---';
+
+export function buildPrompt(jobDescription, outputType, language, cvText, includeEmailIntro = false) {
   const langInstruction =
     language === 'he'
       ? 'Write the output in Hebrew (RTL). Keep technical terms in English where appropriate.'
@@ -20,12 +22,17 @@ export function buildPrompt(jobDescription, outputType, language, cvText) {
     email_paragraph: `Write a short, confident email paragraph (3–5 sentences) that Eyal can send as an initial outreach or application email. Be direct and highlight the most relevant match.`,
   };
 
+  let instruction = outputInstructions[outputType];
+  if (includeEmailIntro && outputType !== 'email_paragraph') {
+    instruction += `\n\nAfter generating the above output, add exactly this line on its own:\n${EMAIL_INTRO_SEPARATOR}\nThen write a short, confident email paragraph (3–5 sentences) that Eyal can paste into an email when sending this CV. Be direct and highlight the strongest match to this specific role.`;
+  }
+
   return `STEP 1 — output exactly this JSON on line 1 (no other text on that line):
 {"score_before": X, "score_after": Y, "gap_note": "max 12 words", "company": "hiring company name or empty string", "job_title": "exact job title from description"}
 
 Where score_before = match % of original CV to job (0-100), score_after = match % after tailoring (0-100), gap_note = one sentence gap or strength note (max 12 words), company = company name from job description (empty string if not mentioned), job_title = exact job title as written in the job description.
 
-STEP 2 — ${outputInstructions[outputType]}
+STEP 2 — ${instruction}
 
 ${langInstruction}
 

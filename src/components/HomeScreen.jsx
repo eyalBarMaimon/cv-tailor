@@ -3,6 +3,7 @@ import { useCV } from '../hooks/useCV';
 import { useClaude } from '../hooks/useClaude';
 import { useJobHistory } from '../hooks/useJobHistory';
 import { buildPrompt, OUTPUT_TYPES } from '../utils/prompts';
+import { EMAIL_INTRO_SEPARATOR } from '../utils/prompts';
 import { cvToText } from '../utils/cvData';
 import ResultsView from './ResultsView';
 
@@ -14,6 +15,7 @@ export default function HomeScreen({ onApiKeyNeeded }) {
   const [jobDescription, setJobDescription] = useState('');
   const [outputType, setOutputType] = useState('full_cv');
   const [language, setLanguage] = useState('en');
+  const [includeEmailIntro, setIncludeEmailIntro] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
 
@@ -25,9 +27,9 @@ export default function HomeScreen({ onApiKeyNeeded }) {
 
     try {
       const cvText = cvToText(cv);
-      const prompt = buildPrompt(jobDescription, outputType, language, cvText);
+      const prompt = buildPrompt(jobDescription, outputType, language, cvText, includeEmailIntro);
       const res = await callClaude(prompt);
-      setResult({ ...res, language });
+      setResult({ ...res, language, includeEmailIntro });
       addEntry({
         scoreBefore: res.scores.score_before,
         scoreAfter: res.scores.score_after,
@@ -48,7 +50,7 @@ export default function HomeScreen({ onApiKeyNeeded }) {
   };
 
   if (result) {
-    return <ResultsView result={result} outputType={outputType} onBack={() => setResult(null)} />;
+    return <ResultsView result={result} outputType={outputType} onBack={() => setResult(null)} emailIntroSeparator={EMAIL_INTRO_SEPARATOR} />;
   }
 
   return (
@@ -85,6 +87,18 @@ export default function HomeScreen({ onApiKeyNeeded }) {
           </div>
         </div>
       </div>
+
+      {outputType !== 'email_paragraph' && (
+        <label className="checkbox-row" style={{ opacity: loading ? 0.5 : 1 }}>
+          <input
+            type="checkbox"
+            checked={includeEmailIntro}
+            onChange={(e) => setIncludeEmailIntro(e.target.checked)}
+            disabled={loading}
+          />
+          <span>📧 כלול פסקת מייל קצרה לשליחה עם קורות החיים</span>
+        </label>
+      )}
 
       {error && <p className="error-msg">{error}</p>}
 

@@ -37,7 +37,7 @@ async function loadHandle() {
 }
 
 export function isSupported() {
-  return typeof window !== 'undefined' && 'showSaveFilePicker' in window;
+  return typeof window !== 'undefined' && ('showOpenFilePicker' in window || 'showSaveFilePicker' in window);
 }
 
 // Check if a handle is stored without requesting permission
@@ -75,13 +75,34 @@ export async function restorePermission() {
 }
 
 export async function linkFile() {
-  const handle = await window.showSaveFilePicker({
-    suggestedName: 'Job_Tracker.xlsx',
-    types: [{
-      description: 'Excel Workbook',
-      accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
-    }],
-  });
+  let handle;
+  if ('showOpenFilePicker' in window) {
+    // Prefer open picker — user selects their existing Job_Tracker.xlsx
+    const [picked] = await window.showOpenFilePicker({
+      types: [{
+        description: 'Excel Workbook',
+        accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
+      }],
+      excludeAcceptAllOption: false,
+      multiple: false,
+    });
+    // Ensure we have write permission
+    const perm = await picked.queryPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') {
+      const req = await picked.requestPermission({ mode: 'readwrite' });
+      if (req !== 'granted') throw new Error('נדרשת הרשאת כתיבה לקובץ');
+    }
+    handle = picked;
+  } else {
+    // Fallback for browsers that only support showSaveFilePicker
+    handle = await window.showSaveFilePicker({
+      suggestedName: 'Job_Tracker.xlsx',
+      types: [{
+        description: 'Excel Workbook',
+        accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
+      }],
+    });
+  }
   await saveHandle(handle);
   _activeHandle = handle;
   return handle;

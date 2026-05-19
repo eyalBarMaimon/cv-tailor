@@ -400,6 +400,49 @@ input, textarea, select { font: inherit; color: var(--text); }
   color: var(--text);
 }
 
+/* ===== Checkbox row ===== */
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  padding: 10px 0 4px;
+}
+.checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--blue);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ===== Email Intro Card ===== */
+.email-intro-card {
+  background: rgba(44,95,138,0.07);
+  border: 1px solid var(--blue);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.email-intro-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--blue);
+}
+.email-intro-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0;
+  white-space: pre-wrap;
+}
+
 /* ===== CV Editor ===== */
 .editor-section {
   background: var(--surface);
