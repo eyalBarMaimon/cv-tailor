@@ -139,6 +139,27 @@ function buildXlsx(entries) {
   return XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
 }
 
+export async function mobileBackup() {
+  const raw = localStorage.getItem('cv_tailor_job_history');
+  const entries = raw ? JSON.parse(raw) : [];
+  const buf = buildXlsx(entries);
+  const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const filename = `Job_Tracker_${new Date().toISOString().split('T')[0]}.xlsx`;
+  const file = new File([blob], filename, { type: blob.type });
+
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    await navigator.share({ files: [file], title: 'Job Tracker Backup' });
+    return;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export async function syncEntriesToFile(entries) {
   const handle = await getLinkedFile();
   if (!handle) return false;

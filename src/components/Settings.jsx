@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { isSupported, linkFile, getLinkedFile, unlinkFile } from '../utils/fileSync';
+import { isSupported, linkFile, getLinkedFile, unlinkFile, mobileBackup } from '../utils/fileSync';
 
 export default function Settings() {
   const [apiKey, setApiKey] = useState(
@@ -45,6 +45,14 @@ export default function Settings() {
     setLinkedFileName(null);
   };
 
+  const handleMobileBackup = async () => {
+    try {
+      await mobileBackup();
+    } catch (e) {
+      if (e.name !== 'AbortError') alert('שגיאה בייצוא: ' + e.message);
+    }
+  };
+
   return (
     <div className="screen">
       <h2 className="screen-title">Settings</h2>
@@ -81,7 +89,14 @@ export default function Settings() {
       <div className="settings-card">
         <h3>📊 גיבוי אוטומטי ל-Excel</h3>
         {!isSupported() ? (
-          <p className="settings-hint">הדפדפן שלך לא תומך בגיבוי אוטומטי. השתמש ב-Chrome או Edge.</p>
+          <>
+            <p className="settings-hint">
+              גיבוי ברקע לא נתמך בדפדפן זה. לחץ להוריד/לשתף קובץ Excel עם כל ההיסטוריה:
+            </p>
+            <button className="btn btn-primary" onClick={handleMobileBackup}>
+              📥 הורד גיבוי Excel
+            </button>
+          </>
         ) : linkedFileName ? (
           <>
             <div className="sync-status sync-active">
