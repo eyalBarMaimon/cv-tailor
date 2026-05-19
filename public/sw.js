@@ -1,13 +1,11 @@
-const CACHE_NAME = 'cv-tailor-v1';
-const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-];
+const CACHE_NAME = 'cv-tailor-v2';
 
 self.addEventListener('install', (event) => {
+  // Cache the start page using relative URL from sw.js location
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.addAll(['./', './index.html', './manifest.json'])
+    )
   );
   self.skipWaiting();
 });
@@ -23,7 +21,8 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  if (event.request.url.includes('api.anthropic.com')) return;
+  if (event.request.url.includes('api.groq.com')) return;
+  if (event.request.url.includes('generativelanguage.googleapis.com')) return;
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
@@ -34,7 +33,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
-      }).catch(() => caches.match('/'));
+      }).catch(() => caches.match('./index.html'));
     })
   );
 });
