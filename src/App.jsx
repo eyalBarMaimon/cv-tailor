@@ -3,7 +3,7 @@ import HomeScreen from './components/HomeScreen';
 import CVEditor from './components/CVEditor';
 import JobHistory from './components/JobHistory';
 import Settings from './components/Settings';
-import { restorePermission, hasStoredHandle } from './utils/fileSync';
+import { restorePermission } from './utils/fileSync';
 import './index.css';
 
 const TABS = [
@@ -79,16 +79,15 @@ export default function App() {
 
   const hasApiKey = !!localStorage.getItem('cv_tailor_api_key');
 
-  // Restore file permission on first user interaction (required by browser security)
+  // Restore file permission on first user interaction (required by browser security).
+  // restorePermission() must be called immediately — no awaits before it, or Chrome
+  // considers the user-gesture context expired and silently denies requestPermission.
   useEffect(() => {
-    const onFirstClick = async () => {
+    const onFirstClick = () => {
       if (permRestored.current) return;
       permRestored.current = true;
       document.removeEventListener('click', onFirstClick);
-      const fileName = await hasStoredHandle();
-      if (!fileName) return;
-      const handle = await restorePermission();
-      setSyncActive(!!handle);
+      restorePermission().then((handle) => setSyncActive(!!handle)).catch(() => {});
     };
     document.addEventListener('click', onFirstClick);
     return () => document.removeEventListener('click', onFirstClick);
