@@ -110,10 +110,10 @@ export default function Settings() {
         ) : (
           <>
             <p className="settings-hint">
-              קשר קובץ Excel אחד — האפליקציה תכתוב אליו אוטומטית אחרי כל שינוי, ללא חלונות הורדה.
+              בחר היכן לשמור קובץ גיבוי — האפליקציה תכתוב אליו אוטומטית אחרי כל שינוי, ללא חלונות הורדה.
             </p>
             <button className="btn btn-primary" onClick={handleLinkFile} disabled={linking}>
-              {linking ? 'מקשר...' : '📂 קשר קובץ Excel'}
+              {linking ? 'מקשר...' : '📂 צור קובץ גיבוי Excel'}
             </button>
           </>
         )}

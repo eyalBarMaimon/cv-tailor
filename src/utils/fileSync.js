@@ -75,18 +75,25 @@ export async function restorePermission() {
 }
 
 export async function linkFile() {
+  // showSaveFilePicker grants write permission directly — no requestPermission dance needed.
+  // showOpenFilePicker is used as fallback only (older Chrome that lacks showSaveFilePicker).
+  const xlsxType = {
+    description: 'Excel Workbook',
+    accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
+  };
+
   let handle;
-  if ('showOpenFilePicker' in window) {
-    // Prefer open picker — user selects their existing Job_Tracker.xlsx
+  if ('showSaveFilePicker' in window) {
+    handle = await window.showSaveFilePicker({
+      suggestedName: 'Job_Tracker.xlsx',
+      types: [xlsxType],
+    });
+  } else if ('showOpenFilePicker' in window) {
     const [picked] = await window.showOpenFilePicker({
-      types: [{
-        description: 'Excel Workbook',
-        accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
-      }],
+      types: [xlsxType],
       excludeAcceptAllOption: false,
       multiple: false,
     });
-    // Ensure we have write permission
     const perm = await picked.queryPermission({ mode: 'readwrite' });
     if (perm !== 'granted') {
       const req = await picked.requestPermission({ mode: 'readwrite' });
@@ -94,15 +101,9 @@ export async function linkFile() {
     }
     handle = picked;
   } else {
-    // Fallback for browsers that only support showSaveFilePicker
-    handle = await window.showSaveFilePicker({
-      suggestedName: 'Job_Tracker.xlsx',
-      types: [{
-        description: 'Excel Workbook',
-        accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
-      }],
-    });
+    throw new Error('הדפדפן לא תומך בשמירת קבצים');
   }
+
   await saveHandle(handle);
   _activeHandle = handle;
   return handle;
